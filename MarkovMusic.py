@@ -57,13 +57,22 @@ def _12tet(root):
     scale = []
     semitone = 0
     while semitone < 13:
-        print(semitone)
         scale.append((2 ** (semitone / 12)) * root)
         semitone += 1
     return scale
 
 
-def _just(root):
+def _12tet_major(root):
+    scale = []
+    semitone = 0
+    while semitone < 13:
+        if semitone not in (1, 3, 6, 8, 10):
+            scale.append((2 ** (semitone / 12)) * root)
+        semitone += 1
+    return scale
+
+
+def _just_12tone(root):
     scale = []
     ratios = [
         1 / 1,
@@ -87,11 +96,24 @@ def _just(root):
     return scale
 
 
-c_just_scale = [261, 293.625, 326.25, 348.0, 391.5, 435.0, 489.375, 522.0]
-
-mus = MusicGen(c_just_scale)
-m = mus.markov()
-print(m)
+def _just_minor(root):
+    scale = []
+    ratios = [
+        1 / 1,
+        9 / 8,
+        6 / 5,
+        4 / 3,
+        3 / 2,
+        8 / 5,
+        7 / 4,
+        2 / 1,
+    ]
+    semitone = 0
+    while semitone < 8:
+        print(semitone)
+        scale.append(root * ratios[semitone])
+        semitone += 1
+    return scale
 
 
 def melody(length, scale, markov):
@@ -102,11 +124,20 @@ def melody(length, scale, markov):
         current_note_matrix = np.zeros(shape=(8, 1))
         current_note_matrix.T[0][current_note[0]] = 1
         probabilities = np.matmul(markov, current_note_matrix)
-        outcome = random.choices([x[1] for x in scale], probabilities.T[0])
-        melody.append(outcome[0])
+        outcome = random.choices(scale, probabilities.T[0])
+        melody.append(outcome[0][1])
+        current_note = outcome[0]
         l += 1
     return melody
 
 
+# c_just_scale = [261, 293.625, 326.25, 348.0, 391.5, 435.0, 489.375, 522.0]
+
+# g_sharp_minor_scale = _just_minor(207.6525)
+
+scale = _12tet_major(311.127)
+
+mus = MusicGen(scale)
+m = mus.markov()
 mel = melody(10, mus.scale, m)
 print(mel)
