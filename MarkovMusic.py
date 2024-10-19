@@ -1,6 +1,7 @@
 import math
 from fractions import Fraction
 import numpy as np
+import random
 
 
 def gcd(a, b):
@@ -91,3 +92,21 @@ c_just_scale = [261, 293.625, 326.25, 348.0, 391.5, 435.0, 489.375, 522.0]
 mus = MusicGen(c_just_scale)
 m = mus.markov()
 print(m)
+
+
+def melody(length, scale, markov):
+    current_note = scale[0]
+    melody = [current_note[1]]
+    l = 0
+    while l < length:
+        current_note_matrix = np.zeros(shape=(8, 1))
+        current_note_matrix.T[0][current_note[0]] = 1
+        probabilities = np.matmul(markov, current_note_matrix)
+        outcome = random.choices([x[1] for x in scale], probabilities.T[0])
+        melody.append(outcome[0])
+        l += 1
+    return melody
+
+
+mel = melody(10, mus.scale, m)
+print(mel)
