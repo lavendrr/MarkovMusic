@@ -2,6 +2,7 @@ import math
 from fractions import Fraction
 import numpy as np
 
+
 def gcd(a, b):
     if a < b:
         return gcd(b, a)
@@ -35,7 +36,7 @@ class MusicGen:
 
         return sort
 
-    def markov(self, sorted_scale):
+    def markov(self):
         matrix = np.array(np.zeros(shape=(8, 8)))
         probabilities = []
         x = 0
@@ -43,10 +44,10 @@ class MusicGen:
             probabilities.append(0.2 - ((3 / 140) * x))
             x += 1
 
-        for index, note in enumerate(sorted_scale):
-            # print(f"note index {note[0]}\nnote value {note[1]}")
-            # print(f"probability {probabilities[index]}")
-            matrix.T[0][note[0]] = probabilities[index]
+        for note in self.scale:
+            sorted_scale = self.consonant_sort(note[1])
+            for index, note2 in enumerate(sorted_scale):
+                matrix.T[note[0]][note2[0]] = probabilities[index]
 
         return matrix
 
@@ -88,6 +89,5 @@ def _just(root):
 c_just_scale = [261, 293.625, 326.25, 348.0, 391.5, 435.0, 489.375, 522.0]
 
 mus = MusicGen(c_just_scale)
-s = mus.consonant_sort(261)
-m = mus.markov(s)
+m = mus.markov()
 print(m)
