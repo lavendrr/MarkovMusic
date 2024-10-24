@@ -1,5 +1,5 @@
 import math
-from fractions import Fraction
+from audiogen import melody_output
 import numpy as np
 import random
 
@@ -136,8 +136,11 @@ def _just_minor(root):
     return scale
 
 
-scale = _ntet(311.127, 15)
+# TESTING / EXAMPLE USAGE (31tet scale based on Eb above middle C)
+scale = _ntet(311.127, 31)
+print(scale)
 
 mus = MusicGen(scale)
-mel = mus.melody(10)
+mel = mus.melody(12)
 print(mel)
+melody_output(mel, 130, "square")
