@@ -68,7 +68,19 @@ class MusicGen:
             current_note_matrix = np.zeros(shape=(len(self.scale), 1))
             current_note_matrix.T[0][current_note[0]] = 1
             probabilities = np.matmul(self.matrix, current_note_matrix)
-            outcome = random.choices(self.scale, probabilities.T[0])
+
+            step_or_leap = random.choices([True, False])
+            if step_or_leap:
+                outcome = random.choices(self.scale, probabilities.T[0])
+            else:
+                index = self.scale.index(current_note)
+                if index == 0:
+                    outcome = [self.scale[index + 1]]
+                elif index == len(self.scale) - 1:
+                    outcome = [self.scale[index - 1]]
+                else:
+                    outcome = random.choices([self.scale[index - 1], self.scale[index + 1]])
+
             melody.append(outcome[0][1])
             current_note = outcome[0]
             l += 1
@@ -137,7 +149,8 @@ def _just_minor(root):
 
 
 # TESTING / EXAMPLE USAGE (31tet scale based on Eb above middle C)
-scale = _ntet(311.127, 31)
+# scale = _ntet(311.127, 31)
+scale = _12tet_major(200)
 print(scale)
 
 mus = MusicGen(scale)
