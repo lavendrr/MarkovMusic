@@ -34,29 +34,55 @@ class MusicGen:
 
     def consonant_sort(self, current_note):
         sort = []
-        sort = sorted(self.scale, key=lambda x: self.calc_interval(current_note, x[1]))
+        sort = sorted(
+            self.scale, key=lambda x: self.calc_interval(current_note[1], x[1])
+        )
+
+        sort.remove(current_note)
+        sort.append(current_note)
+        if current_note[0] != 0:
+            sort.remove(self.scale[current_note[0] - 1])
+            sort.append(self.scale[current_note[0] - 1])
+        if current_note[0] != len(self.scale) - 1:
+            sort.remove(self.scale[current_note[0] + 1])
+            sort.append(self.scale[current_note[0] + 1])
 
         return sort
 
     def markov(self, scale):
         matrix = np.array(np.zeros(shape=(len(scale), len(scale))))
-        probabilities = []
+        probabilities = [0.0, 0.0, 0.0]
+        probabilities_ends = [0.0, 0.0]
 
         d = 0
+        d2 = 0
         x = 1
-        while x < len(scale) + 1:
+        while x < len(scale) - 1:
             d += x
+            if x < len(scale) - 2:
+                d2 += x
             x += 1
 
         n = 1
-        while n < len(scale) + 1:
-            probabilities.append(n / d)
+        while n < len(scale) - 1:
+            if n < len(scale) - 2:
+                probabilities.append(n / d2)
+            probabilities_ends.append(n / d)
             n += 1
 
+        probabilities.reverse()
+        probabilities_ends.reverse()
+
         for note in self.scale:
-            sorted_scale = self.consonant_sort(note[1])
+            sorted_scale = self.consonant_sort(note)
             for index, note2 in enumerate(sorted_scale):
-                matrix.T[note[0]][note2[0]] = probabilities[index]
+                if note2[0] == note[0] + 1 | note[0] - 1 | note[0]:
+                    matrix.T[note[0]][note2[0]] = 0.0
+                else:
+                    if note[0] != 0 & note[0] != len(sorted_scale) - 1:
+                        matrix.T[note[0]][note2[0]] = probabilities[index]
+                    else:
+                        matrix.T[note[0]][note2[0]] = probabilities_ends[index]
 
         return matrix
 
@@ -64,30 +90,43 @@ class MusicGen:
         current_note = self.scale[0]
         melody = [current_note[1]]
         l = 0
-        step_probability = 0.85
+        step_probability = 0.75
         while l < length:
             current_note_matrix = np.zeros(shape=(len(self.scale), 1))
             current_note_matrix.T[0][current_note[0]] = 1
             probabilities = np.matmul(self.matrix, current_note_matrix)
 
-            leap = random.choices([True, False], [1.0 - step_probability, step_probability])
-            print(step_probability)
+            leap = random.choices(
+                [True, False], [1.0 - step_probability, step_probability]
+            )
+            # print(step_probability)
             # print(leap)
 
             if leap[0]:
-                print('leap')
+                print("leap")
                 outcome = random.choices(self.scale, probabilities.T[0])
                 step_probability = 0.75
                 # print("reset" + step_probability)
             else:
-                print('step')
+                print("step")
                 index = self.scale.index(current_note)
                 if index == 0:
-                    outcome = [self.scale[index + 1]]
+                    outcome = random.choices(
+                        [self.scale[index + 1], self.scale[index]], [5 / 6, 1 / 6]
+                    )
                 elif index == len(self.scale) - 1:
-                    outcome = [self.scale[index - 1]]
+                    outcome = random.choices(
+                        [self.scale[index - 1], self.scale[index]], [5 / 6, 1 / 6]
+                    )
                 else:
-                    outcome = random.choices([self.scale[index - 1], self.scale[index + 1]])
+                    outcome = random.choices(
+                        [
+                            self.scale[index - 1],
+                            self.scale[index + 1],
+                            self.scale[index],
+                        ],
+                        [2 / 5, 2 / 5, 1 / 5],
+                    )
                 if step_probability > 0.25:
                     step_probability -= 0.1
 
@@ -160,11 +199,11 @@ def _just_minor(root):
 
 # TESTING / EXAMPLE USAGE (31tet scale based on Eb above middle C)
 # scale = _ntet(311.127, 31)
-# scale = _12tet_major(200)
-scale = _just_minor(200)
+scale = _12tet_major(200)
+# scale = _ntet(196, 19)
 print(scale)
 
 mus = MusicGen(scale)
 mel = mus.melody(12)
 print(mel)
-melody_output(mel, 130, "square")
+melody_output(mel, 143, "square")
