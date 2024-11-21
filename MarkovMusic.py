@@ -38,20 +38,14 @@ class MusicGen:
 
         return sort
 
-    def markov(self, scale):
-        matrix = np.array(np.zeros(shape=(len(scale), len(scale))))
+    def markov(self):
+        n = len(self.scale)
+        matrix = np.array(np.zeros(shape=(n, n)))
         probabilities = []
-
-        d = 0
-        x = 1
-        while x < len(scale) + 1:
-            d += x
+        x = 0
+        while x < len(self.scale):
+            probabilities.append(2 / (n - 1) - ((2 / (n * (n - 1))) * x))
             x += 1
-
-        n = 1
-        while n < len(scale) + 1:
-            probabilities.append(n / d)
-            n += 1
 
         for note in self.scale:
             sorted_scale = self.consonant_sort(note[1])
