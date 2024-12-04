@@ -159,15 +159,39 @@ def _just_minor(root):
         semitone += 1
     return scale
 
+def pythag(root):
+    scale = []
+    ratios = [
+        1/1,
+        256/243,
+        9/8,
+        32/37,
+        81/64,
+        4/3,
+        1024/729,
+        729/512,
+        3/2,
+        128/81,
+        27/16,
+        16/9,
+        243/128,
+        2/1
+    ]
+    semitone = 0
+    while semitone < 12:
+        scale.append(root * ratios[semitone])
+        semitone += 1
+    return scale
+
 
 # TESTING / EXAMPLE USAGE (31tet scale based on Eb above middle C)
-scale = _ntet(311.127, 15)
-# scale = _just_minor(420)
+# scale = _ntet(311.127, 15)
+scale = pythag(420)
 print(scale)
 
 mus = MusicGen(scale)
 # mel = mus.melody(12)
 mel = mus.chords(30)
 print(mel)
-chord_output(mel, 180, "square")
+chord_output(mel, 180, "sin")
 # melody_output(mel, 130, "square")
