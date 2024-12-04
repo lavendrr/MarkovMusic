@@ -1,5 +1,5 @@
 import math
-from audiogen import melody_output
+from audiogen import melody_output, chord_output
 import numpy as np
 import random
 
@@ -25,7 +25,7 @@ class MusicGen:
         self.scale = []
         for index, item in enumerate(scale):
             self.scale.append((index, item))
-        self.matrix = self.markov(self.scale)
+        self.matrix = self.markov()
 
     def calc_interval(self, note1, note2):
         frac = simplify_fraction(note1, note2)
@@ -67,6 +67,36 @@ class MusicGen:
             current_note = outcome[0]
             l += 1
         return melody
+
+    def chords(self, length):
+        current_note = self.scale[0]
+        chords = [[current_note[1], current_note[1]]]
+        l = 0
+        while l < length:
+            chord = []
+
+            current_note_matrix = np.zeros(shape=(len(self.scale), 1))
+            current_note_matrix.T[0][current_note[0]] = 1
+            probabilities = np.matmul(self.matrix, current_note_matrix)
+
+            # Select 2 notes randomly
+            outcome = random.choices(self.scale, probabilities.T[0])
+            # Add the two note frequencies in a list
+            chord.append(outcome[0][1])
+
+            next_note_matrix = np.zeros(shape=(len(self.scale), 1))
+            next_note_matrix.T[0][outcome[0][0]] = 1
+            chord_probabilities = np.matmul(self.matrix, next_note_matrix)
+
+            chord_outcome = random.choices(self.scale, chord_probabilities.T[0])
+            chord.append(chord_outcome[0][1])
+
+            chords.append(chord)
+
+            current_note = outcome[0]
+            l += 1
+
+        return chords
 
 
 def _ntet(root, divisions=12):
@@ -131,10 +161,13 @@ def _just_minor(root):
 
 
 # TESTING / EXAMPLE USAGE (31tet scale based on Eb above middle C)
-scale = _ntet(311.127, 31)
+scale = _ntet(311.127, 15)
+# scale = _just_minor(420)
 print(scale)
 
 mus = MusicGen(scale)
-mel = mus.melody(12)
+# mel = mus.melody(12)
+mel = mus.chords(30)
 print(mel)
-melody_output(mel, 130, "square")
+chord_output(mel, 180, "square")
+# melody_output(mel, 130, "square")
