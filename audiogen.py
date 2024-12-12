@@ -51,18 +51,19 @@ def melody_output(melody, bpm, timbre):
     )  # generate ramps with the corresponding number of samples
     decay = np.linspace(1, 0, env_length)
 
-    for note in melody:
-        f = note
-        if f == -1:  # output a rest if the input frequency is negative
+    for n in melody:
+        f = n
+        x = note_array_samples * 0
+        if n == -1:  # output a rest if the input frequency is negative
             x = note_array_samples * 0
         else:
             if timbre == "square":
-                x = amplitude * square(
-                    f, note_array_seconds
+                x += amplitude * square(
+                    n, note_array_seconds
                 )  # Calculate sample amplitudes via square (summing Fourier terms = additive synth)
             elif timbre == "sin":
                 ω = get_omega(f, fs)  # Get normalized angular frequency
-                x = (amplitude * 1.5) * np.sin(
+                x += (amplitude * 1.5) * np.sin(
                     ω * note_array_samples + φ
                 )  # Calculate sample amplitudes via sin (increase amplitude since sin is perceptually quieter)
         x[:env_length] = (
