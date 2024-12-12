@@ -53,7 +53,7 @@ def melody_output(melody, bpm, timbre):
 
     for n in melody:
         f = n
-        x = note_array_samples * 0
+        x = note_array_samples * 0.0
         if n == -1:  # output a rest if the input frequency is negative
             x = note_array_samples * 0
         else:

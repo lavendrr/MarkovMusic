@@ -160,14 +160,15 @@ def _just_minor(root):
     return scale
 
 
-# TESTING / EXAMPLE USAGE (31tet scale based on Eb above middle C)
-scale = _ntet(311.127, 15)
+# TESTING / EXAMPLE USAGE 
+# scale = _just_minor(220)
+scale = _ntet(220, 31)
 # scale = _just_minor(420)
 print(scale)
 
 mus = MusicGen(scale)
 # mel = mus.melody(12)
-mel = mus.chords(30)
+mel = mus.chords(16)
 print(mel)
-chord_output(mel, 180, "square")
+chord_output(mel, 150, "square")
 # melody_output(mel, 130, "square")
