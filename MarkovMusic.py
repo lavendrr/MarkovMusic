@@ -183,15 +183,49 @@ def pythag(root):
         semitone += 1
     return scale
 
+def calc_interval(note1, note2):
+    frac = simplify_fraction(note1, note2)
+    frac_sum = frac[0] + frac[1]
+    return frac_sum
+
+def custom_ntet_diatonic_scale(root, tet, length):
+    if length > tet:
+        print("length must be <= tet")
+        return
+    
+    scale = _ntet(root, tet)
+    # scale = _just_12tone(root)
+    print(scale)
+    sort = sorted(scale, key=lambda x: calc_interval(root, x))
+    print(sort)
+
+    scale = sort[:length]
+
+    scale.sort()
+
+    return scale
+
 
 # TESTING / EXAMPLE USAGE (31tet scale based on Eb above middle C)
 # scale = _ntet(311.127, 15)
-scale = pythag(420)
+# scale = pythag(420)
+scale = custom_ntet_diatonic_scale(200, 12, 8)
+# scale = _ntet(311.127)
+# scale = _just_minor(311.127)
 print(scale)
 
 mus = MusicGen(scale)
 # mel = mus.melody(12)
-mel = mus.chords(30)
-print(mel)
-chord_output(mel, 180, "sin")
+# mel = mus.chords(12)
+
+mel = []
+x = 0
+while x < len(scale):
+    mel.append([scale[0], scale[x]])
+    x += 1
+
+# print(mel)
+chord_output(mel, 70, "square")
 # melody_output(mel, 130, "square")
+
+# semitones given = [1, 4, 5, 6, 7, 9, 10, 12]
